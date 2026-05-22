@@ -1,4 +1,4 @@
-name: IOS向けの未署名IPAファイルの生成
+name: IOS向けのIPA生成
 on:
   push:
     branches: [ "main" ]
@@ -18,19 +18,25 @@ jobs:
       - name: 初期化
         run: |
           xcodebuild clean \
-            -project SimpleToDo/SimpleToDo.xcodeproj \
-            -scheme SimpleToDo \
+
+          # -project プロジェクトのフォルダ名/プロジェクトのフォルダ名.xcodeproj \
+            -project WordTrainer/WordTrainer.xcodeproj \
+
+            -scheme WordTrainer \
             -configuration Release
 
       - name: アーカイブ（署名なし）
         run: |
           xcodebuild archive \
-            -project SimpleToDo/SimpleToDo.xcodeproj \
-            -scheme SimpleToDo \
+
+          # -project プロジェクトのフォルダ名/プロジェクトのフォルダ名.xcodeproj \
+            -project WordTrainer/WordTrainer.xcodeproj \
+
+          #
+            -scheme WordTrainer \
             -configuration Release \
             -sdk iphoneos \
-            -archivePath build/SimpleToDo.xcarchive \
-            INFOPLIST_FILE=SimpleToDo/Info.plist \
+            -archivePath build/WordTrainer.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
@@ -39,14 +45,14 @@ jobs:
         run: |
           mkdir -p build/ipa/Payload
           cp -R \
-            build/SimpleToDo.xcarchive/Products/Applications/SimpleToDo.app \
+            build/WordTrainer.xcarchive/Products/Applications/WordTrainer.app \
             build/ipa/Payload/
 
           cd build/ipa
-          zip -r SimpleToDo-unsigned.ipa Payload
+          zip -r WordTrainer.ipa Payload
 
       - name: 署名なしIPAのartifactへのアップロード
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: SimpleToDo-unsigned-ipa
-          path: build/ipa/SimpleToDo-unsigned.ipa
+          archive: false
+          path: build/ipa/WordTrainer.ipa
